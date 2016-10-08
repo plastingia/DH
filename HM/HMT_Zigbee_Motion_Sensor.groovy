@@ -1,5 +1,5 @@
 /**
- *  Copyright 2016 Soon Chye
+ *  Copyright 2016 SoonChye
  *
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -8,11 +8,9 @@
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *  Motion Sensor (Heiman)
- *  Date: 2016-10-08
  */
- 
 import physicalgraph.zigbee.clusters.iaszone.ZoneStatus
+
 
 metadata {
 	definition (name: "Heiman Zigbee Motion Sensor", namespace: "sc", author: "SoonChye") {
@@ -24,7 +22,7 @@ metadata {
         
         command "enrollResponse"
 
-		fingerprint profileId: "0104", deviceId: "0402", inClusters: "0000,0003,0500,0001,0009", outClusters: "0019", manufacturer: "Heiman", model: "PIR_TPV14", deviceJoinName: "HM Zigbee Motion Sensor"
+		fingerprint profileId: "0104", deviceId: "0402", inClusters: "0000,0003,0500,0001,0009", outClusters: "0019", manufacturer: "Heiman", model: "PIR_TPV14", deviceJoinName: "Heiman Zigbee Motion Sensor"
 	}
 
 	// simulator metadata
@@ -79,9 +77,9 @@ def parse(String description) {
 }
 
 private Map parseCatchAllMessage(String description) {
-	log.debug "cluster.clusterId: $cluster.clusterId"
 	Map resultMap = [:]
 	def cluster = zigbee.parse(description)
+    log.debug "cluster.clusterId: $cluster.clusterId"
 	if (shouldProcessMessage(cluster)) {
 		switch(cluster.clusterId) {
 			case 0x0001:
@@ -108,7 +106,7 @@ private boolean shouldProcessMessage(cluster) {
 }
 
 private Map parseReportAttributeMessage(String description) {
-	log.debug "description2: $description"
+	//log.debug "description2: $description"
 	Map descMap = (description - "read attr - ").split(",").inject([:]) { map, param ->
 		def nameAndValue = param.split(":")
 		map += [(nameAndValue[0].trim()):nameAndValue[1].trim()]
@@ -188,16 +186,21 @@ def ping() {
 
 def refresh() {
 	log.debug "Refreshing Battery"
+    return zigbee.readAttribute(0x001, 0x0020)
+}
+
+def refresh1() {
+	log.debug "Refreshing Battery"
 	def refreshCmds = [
 		"st rattr 0x${device.deviceNetworkId} 1 1 0x0001", "delay 200",
         "st rattr 0x${device.deviceNetworkId} 1 1 0x0020", "delay 200"
 	]
 
-	//return refreshCmds + enrollResponse()
-    return refreshCmds 
+	return refreshCmds + enrollResponse()
+    //return refreshCmds 
 }
 
-def configure1() {
+def configure() {
 	// Device-Watch allows 2 check-in misses from device
 	sendEvent(name: "checkInterval", value: 60 * 12, displayed: false, data: [protocol: "zigbee"])
 
@@ -214,7 +217,7 @@ def configure1() {
 }
 
 
-def configure() {
+def configure2() {
 	String zigbeeId = swapEndianHex(device.hub.zigbeeId)
 
 	attrInit()
@@ -234,8 +237,8 @@ def configure() {
 		"send 0x${device.deviceNetworkId} 1 ${endpointId}", "delay 1500",
 
 		// Writes CIE attribute on end device to direct reports to the hub's EUID
-		//"zcl global write 0x500 0x10 0xf0 {${zigbeeId}}", "delay 200",
-		//"send 0x${device.deviceNetworkId} 1 1", "delay 500"
+		"zcl global write 0x500 0x10 0xf0 {${zigbeeId}}", "delay 200",
+		"send 0x${device.deviceNetworkId} 1 1", "delay 500"
 	]
 
 	//log.debug "configure: Write IAS CIE"
