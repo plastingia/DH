@@ -1,17 +1,18 @@
 /**
- *  Copyright 2016 Soon Chye
+ *  Copyright 2016 CSC
  *
  *
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
  *
- *	Smart Power Outlet (Heiman)
- *	Date: 2015-08-23
+ *	Smart Power Outlet (HM)
+ *	Date: 2016-11-23
+ *      Version: 1.1 - updated to report energy in "Recently" tab
  */
 metadata {
 	// Automatically generated. Make future change here.
-	definition (name: "HMT Zigbee Smart Outlet", namespace: "sc", author: "SoonChye") {
+	definition (name: "Heiman Zigbee Smart Outlet", namespace: "sc", author: "CSC") {
 		capability "Actuator"
 		capability "Switch"
 		capability "Power Meter"
@@ -29,7 +30,7 @@ metadata {
 	
 		command "resetEnergyUsage"
 		
-        fingerprint profileId: "0104", inClusters: "0000,0003,0006,0009,0702,0B04", outClusters: "0003", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "HM Smart Outlet"	
+        fingerprint profileId: "0104", inClusters: "0000,0003,0006,0009,0702,0B04", outClusters: "0003", manufacturer: "Heiman", model: "SmartPlug", deviceJoinName: "Heiman Smart Outlet"	
 	}
 
 	// simulator metadata
@@ -115,14 +116,16 @@ def parse(String description) {
 		finalResult = getPowerDescription(zigbee.parseDescriptionAsMap(description))
 
 	if (finalResult) {
-		log.info finalResult
+		log.info "final result = $finalResult"
 		if (finalResult.type == "update") {
 			log.info "$device updates: ${finalResult.value}"
 		}
 		else if (finalResult.type == "power") {
-			def powerValue = (finalResult.value as Integer)/10           
-			sendEvent(name: "power", value: powerValue, isStateChange: true, displayed: false) // note: stateChange = true added so the energy calculation can work properly
-			/*
+			def powerValue = (finalResult.value as Integer)/10
+			//sendEvent(name: "power", value: powerValue, isStateChange: true, displayed: false) // note: stateChange = true added so the energy calculation can work properly
+			//SC - chg 20161023
+            sendEvent(name: "power", value: powerValue, descriptionText: '{{ device.displayName }} power is {{ value }} Watts', translatable: true )
+            /*
 				Dividing by 10 as the Divisor is 10000 and unit is kW for the device. AttrId: 0302 and 0300. Simplifying to 10
 				power level is an integer. The exact power level with correct units needs to be handled in the device type
 				to account for the different Divisor value (AttrId: 0302) and POWER Unit (AttrId: 0300). CLUSTER for simple metering is 0702
