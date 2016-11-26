@@ -10,7 +10,7 @@
  *
  *	Smart Motion Sensor (HM)
  *	Date: 2016-10-08
- *  Version: 1.0
+ *	Version: 1.0
  */
 metadata {
 	definition (name: "HM Z-Wave Motion Sensor", namespace: "sc", author: "CSC") {
