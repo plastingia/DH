@@ -296,11 +296,11 @@ metadata {
                  "fanModeLow","fanModeMed","fanModeHigh",
                  "fanModeAuto", "swingModeOn", "swingModeOff",
                  // Comment Out next two lines for Celsius Sliders
-                 "heatingSetpoint", "heatSliderControl",      // Show Fahrenheit Heat Slider
-                 "coolingSetpoint", "coolSliderControl",      // Show Fahrenheit Heat Slider
+                 //"heatingSetpoint", "heatSliderControl",      // Show Fahrenheit Heat Slider
+                 //"coolingSetpoint", "coolSliderControl",      // Show Fahrenheit Heat Slider
                  // Uncomment next two lines for Celsius Sliders
-                 //"heatingSetpoint", "heatSliderControlC",   // Show Celsius Heat Slider
-                 //"coolingSetpoint", "coolSliderControlC",   // Show Celsius Cool Slider
+                 "heatingSetpoint", "heatSliderControlC",   // Show Celsius Heat Slider
+                 "coolingSetpoint", "coolSliderControlC",   // Show Celsius Cool Slider
                  "lastPoll", "currentConfigCode", "currentTempOffset",
                  "refresh", "configure"
         ])
